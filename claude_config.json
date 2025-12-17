@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "yunite": {
+      "url": "http://localhost:7000/sse"
+    }
+  }
+}
