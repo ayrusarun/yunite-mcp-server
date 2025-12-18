@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "yunite": {
+      "command": "ssh",
+      "args": [
+        "root@srv1125315",
+        "docker",
+        "exec",
+        "-i",
+        "yunite-mcp-server",
+        "python3",
+        "/app/server.py"
+      ]
+    }
+  },
+  "githubRepoPaths": {
+    "ayrusarun/yunite-mcp-server": [
+      "/root/server/yunite-mcp-server"
+    ]
+  }
+}

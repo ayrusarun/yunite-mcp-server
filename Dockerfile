@@ -10,6 +10,8 @@ RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pyth
 COPY server.py .
 COPY tools_comprehensive.py .
 COPY tool_handlers.py .
+COPY tools_write.py .
+COPY tool_handlers_write.py .
 COPY .env .
 
 # Run the server with stdio transport
