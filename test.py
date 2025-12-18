@@ -104,7 +104,48 @@ async def test_endpoints():
         except Exception as e:
             print(f"   ❌ Error: {e}")
         
-        print("\n✅ All tests completed!")
+        # Test 6: Sections/Classes
+        print("\n6. Testing /academic/classes...")
+        try:
+            response = await client.get(f"{API_BASE_URL}/academic/classes", headers=headers)
+            if response.status_code == 200:
+                data = response.json()
+                count = len(data) if isinstance(data, list) else data.get('count', 0)
+                print(f"   ✅ Found {count} sections")
+            else:
+                print(f"   ❌ Failed: {response.status_code}")
+        except Exception as e:
+            print(f"   ❌ Error: {e}")
+        
+        # Test 7: User Groups
+        print("\n7. Testing /user-groups/my-groups...")
+        try:
+            response = await client.get(f"{API_BASE_URL}/user-groups/my-groups", headers=headers)
+            if response.status_code == 200:
+                data = response.json()
+                count = len(data) if isinstance(data, list) else data.get('count', 0)
+                print(f"   ✅ Found {count} user groups")
+            else:
+                print(f"   ❌ Failed: {response.status_code}")
+        except Exception as e:
+            print(f"   ❌ Error: {e}")
+        
+        print("\n" + "="*50)
+        print("✅ All view/list endpoint tests completed!")
+        print("="*50)
+        
+        # Test Create Operations (Optional - commented out to avoid creating test data)
+        print("\n📝 Note: Create/Update tools are available but not tested here to avoid")
+        print("   creating test data. Available create tools:")
+        print("   - create_department")
+        print("   - create_program")
+        print("   - create_cohort")
+        print("   - create_section")
+        print("   - create_student")
+        print("   - create_staff")
+        print("   - create_post")
+        print("   - update_user_profile")
+        print("\n   Test these via MCP client after server is running.")
 
 
 if __name__ == "__main__":
