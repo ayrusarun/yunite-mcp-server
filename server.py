@@ -3,6 +3,7 @@
 Yunite MCP Server
 
 MCP server with stdio transport for the Yunite platform.
+Provides comprehensive read access to all API endpoints.
 """
 
 import os
@@ -15,6 +16,8 @@ from mcp.server import Server
 from mcp.types import Tool, TextContent
 from dotenv import load_dotenv
 from mcp.server.stdio import stdio_server
+from tools_comprehensive import get_comprehensive_tools
+from tool_handlers import handle_tool_call
 
 # Load environment variables
 load_dotenv()
@@ -120,11 +123,12 @@ async def make_api_request(
 
 @app.list_tools()
 async def list_tools() -> list[Tool]:
-    """List available tools"""
-    return [
+    """List available tools - comprehensive API coverage"""
+    return get_comprehensive_tools() + [
+        # Legacy/convenience tools below
         Tool(
-            name="list_departments",
-            description="List all departments in the college",
+            name="list_departments_simple",
+            description="List all departments in the college (simple version)",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -533,14 +537,20 @@ async def list_tools() -> list[Tool]:
 
 @app.call_tool()
 async def call_tool(name: str, arguments: Any) -> list[TextContent]:
-    """Handle tool calls"""
+    """Handle tool calls - comprehensive API coverage"""
     
     try:
-        if name == "list_departments":
-            params = {}
-            if arguments.get("include_stats"):
-                params["include_stats"] = True
-            result = await make_api_request("GET", "/departments/", params=params)
+        # Try comprehensive handler first
+        result = await handle_tool_call(name, arguments, make_api_request)
+        
+        # If not found in comprehensive handler, check legacy tools
+        if result.get("error") and result.get("message", "").startswith("Unknown tool"):
+            # Legacy tool handlers below
+            if name == "list_departments_simple":
+                params = {}
+                if arguments.get("include_stats"):
+                    params["include_stats"] = True
+                result = await make_api_request("GET", "/departments/", params=params)
             
         elif name == "list_programs":
             params = {}
