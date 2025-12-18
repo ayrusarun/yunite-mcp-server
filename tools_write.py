@@ -146,7 +146,8 @@ def get_write_tools():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "department_id": {"type": "integer", "description": "Department ID to deactivate"}
+                    "department_id": {"type": "integer", "description": "Department ID to deactivate"},
+                    "force_delete": {"type": "boolean", "description": "Force delete even if department has related data", "default": False}
                 },
                 "required": ["department_id"]
             }
@@ -413,7 +414,8 @@ def get_write_tools():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "integer", "description": "User ID to delete"}
+                    "user_id": {"type": "integer", "description": "User ID to delete"},
+                    "force": {"type": "boolean", "description": "Force delete even if user has related data", "default": False}
                 },
                 "required": ["user_id"]
             }
@@ -690,21 +692,22 @@ def get_write_tools():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "folder_id": {"type": "integer", "description": "Folder ID to delete"}
+                    "folder_path": {"type": "string", "description": "Folder path to delete"},
+                    "recursive": {"type": "boolean", "description": "Delete recursively", "default": False}
                 },
-                "required": ["folder_id"]
+                "required": ["folder_path"]
             }
         ),
         Tool(
             name="move_folder",
-            description="Move a folder to a new parent",
+            description="Move a folder to a new location",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "folder_id": {"type": "integer", "description": "Folder ID to move"},
-                    "new_parent_id": {"type": "integer", "description": "New parent folder ID"}
+                    "source_path": {"type": "string", "description": "Source folder path"},
+                    "destination_path": {"type": "string", "description": "Destination folder path"}
                 },
-                "required": ["folder_id", "new_parent_id"]
+                "required": ["source_path", "destination_path"]
             }
         ),
         Tool(

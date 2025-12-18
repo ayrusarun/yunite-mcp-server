@@ -64,7 +64,8 @@ async def handle_write_tool_call(name: str, arguments: dict, make_api_request):
     
     elif name == "deactivate_department":
         dept_id = arguments["department_id"]
-        return await make_api_request("DELETE", f"/departments/{dept_id}")
+        params = {"force_delete": arguments.get("force_delete", False)}
+        return await make_api_request("DELETE", f"/departments/{dept_id}", params=params)
     
     elif name == "activate_department":
         dept_id = arguments["department_id"]
@@ -200,7 +201,8 @@ async def handle_write_tool_call(name: str, arguments: dict, make_api_request):
     
     elif name == "delete_user":
         user_id = arguments["user_id"]
-        return await make_api_request("DELETE", f"/admin/users/{user_id}")
+        params = {"force": arguments.get("force", False)}
+        return await make_api_request("DELETE", f"/admin/users/{user_id}", params=params)
     
     elif name == "grant_permission":
         user_id = arguments["user_id"]
@@ -240,11 +242,11 @@ async def handle_write_tool_call(name: str, arguments: dict, make_api_request):
     
     elif name == "add_group_member":
         group_id = arguments["group_id"]
-        data = {
+        params = {
             "user_id": arguments["user_id"],
-            "role": arguments.get("role", "member")
+            "role": arguments.get("role", "MEMBER")
         }
-        return await make_api_request("POST", f"/groups/{group_id}/members", data=data)
+        return await make_api_request("POST", f"/groups/{group_id}/members", params=params)
     
     elif name == "update_group_member_role":
         group_id = arguments["group_id"]
@@ -271,8 +273,8 @@ async def handle_write_tool_call(name: str, arguments: dict, make_api_request):
         data = {
             "title": arguments["title"],
             "message": arguments["message"],
-            "group_id": arguments["group_id"],
-            "alert_type": arguments.get("alert_type")
+            "target_group_id": arguments["group_id"],
+            "alert_type": arguments.get("alert_type", "GENERAL")
         }
         return await make_api_request("POST", "/alerts/group-alerts", data=data)
     
@@ -336,15 +338,18 @@ async def handle_write_tool_call(name: str, arguments: dict, make_api_request):
         return await make_api_request("POST", "/files/folders/create", data=data)
     
     elif name == "delete_folder":
-        data = {"folder_id": arguments["folder_id"]}
-        return await make_api_request("DELETE", "/files/folders/delete", data=data)
+        params = {
+            "folder_path": arguments.get("folder_path", arguments.get("folder_id")),
+            "recursive": arguments.get("recursive", False)
+        }
+        return await make_api_request("DELETE", "/files/folders/delete", params=params)
     
     elif name == "move_folder":
-        data = {
-            "folder_id": arguments["folder_id"],
-            "new_parent_id": arguments["new_parent_id"]
+        params = {
+            "source_path": arguments.get("source_path", arguments.get("folder_id")),
+            "destination_path": arguments.get("destination_path", arguments.get("new_parent_id"))
         }
-        return await make_api_request("PUT", "/files/folders/move", data=data)
+        return await make_api_request("PUT", "/files/folders/move", params=params)
     
     elif name == "update_file":
         file_id = arguments["file_id"]

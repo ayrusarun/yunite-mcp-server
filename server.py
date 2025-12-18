@@ -99,11 +99,11 @@ async def make_api_request(
             if method.upper() == "GET":
                 response = await client.get(url, headers=headers, params=params)
             elif method.upper() == "POST":
-                response = await client.post(url, headers=headers, json=data)
+                response = await client.post(url, headers=headers, json=data, params=params)
             elif method.upper() == "PUT":
-                response = await client.put(url, headers=headers, json=data)
+                response = await client.put(url, headers=headers, json=data, params=params)
             elif method.upper() == "DELETE":
-                response = await client.delete(url, headers=headers)
+                response = await client.delete(url, headers=headers, params=params)
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
             
