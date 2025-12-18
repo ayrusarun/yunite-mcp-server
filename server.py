@@ -125,110 +125,7 @@ async def make_api_request(
 async def list_tools() -> list[Tool]:
     """List available tools - comprehensive API coverage"""
     return get_comprehensive_tools() + [
-        # Legacy/convenience tools below
-        Tool(
-            name="list_departments_simple",
-            description="List all departments in the college (simple version)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "include_stats": {
-                        "type": "boolean",
-                        "description": "Include statistics about students and programs",
-                        "default": False
-                    }
-                }
-            }
-        ),
-        Tool(
-            name="list_programs",
-            description="List academic programs",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "department_id": {
-                        "type": "integer",
-                        "description": "Filter by department ID (optional)"
-                    },
-                    "include_stats": {
-                        "type": "boolean",
-                        "description": "Include statistics",
-                        "default": False
-                    }
-                }
-            }
-        ),
-        Tool(
-            name="list_cohorts",
-            description="List cohorts (batches/year groups)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "program_id": {
-                        "type": "integer",
-                        "description": "Filter by program ID (optional)"
-                    },
-                    "admission_year": {
-                        "type": "integer",
-                        "description": "Filter by admission year (optional)"
-                    },
-                    "include_stats": {
-                        "type": "boolean",
-                        "description": "Include statistics",
-                        "default": False
-                    }
-                }
-            }
-        ),
-        Tool(
-            name="list_sections",
-            description="List sections/classes",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "cohort_id": {
-                        "type": "integer",
-                        "description": "Filter by cohort ID (optional)"
-                    },
-                    "program_id": {
-                        "type": "integer",
-                        "description": "Filter by program ID (optional)"
-                    },
-                    "include_stats": {
-                        "type": "boolean",
-                        "description": "Include statistics",
-                        "default": False
-                    }
-                }
-            }
-        ),
-        Tool(
-            name="get_user_profile",
-            description="Get the current user's profile information",
-            inputSchema={
-                "type": "object",
-                "properties": {}
-            }
-        ),
-        Tool(
-            name="list_posts",
-            description="List posts/announcements from the community",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "limit": {
-                        "type": "integer",
-                        "description": "Number of posts to retrieve",
-                        "default": 20
-                    },
-                    "offset": {
-                        "type": "integer",
-                        "description": "Offset for pagination",
-                        "default": 0
-                    }
-                }
-            }
-        ),
+        # Write/Admin tools only (read tools are in comprehensive)
         Tool(
             name="create_post",
             description="Create a new post/announcement",
@@ -247,15 +144,6 @@ async def list_tools() -> list[Tool]:
                 "required": ["content"]
             }
         ),
-        Tool(
-            name="get_user_groups",
-            description="Get groups the user belongs to",
-            inputSchema={
-                "type": "object",
-                "properties": {}
-            }
-        ),
-        # Academic Admin Tools
         Tool(
             name="create_department",
             description="Create a new department in the college",
