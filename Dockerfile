@@ -10,8 +10,5 @@ RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pyth
 COPY server.py .
 COPY .env .
 
-# Expose port 7000
-EXPOSE 7000
-
-# Run the server
+# Run the server with stdio transport
 CMD ["python3", "server.py"]

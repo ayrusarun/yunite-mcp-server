@@ -2,8 +2,7 @@
 """
 Yunite MCP Server
 
-Basic MCP server with HTTP transport for the Yunite platform.
-Runs on port 7000 by default.
+MCP server with stdio transport for the Yunite platform.
 """
 
 import os
@@ -15,13 +14,7 @@ import httpx
 from mcp.server import Server
 from mcp.types import Tool, TextContent
 from dotenv import load_dotenv
-from starlette.applications import Starlette
-from starlette.routing import Route
-from starlette.responses import Response
-import uvicorn
-from sse_starlette import EventSourceResponse
 from mcp.server.stdio import stdio_server
-import anyio
 
 # Load environment variables
 load_dotenv()
@@ -30,7 +23,6 @@ load_dotenv()
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
-SERVER_PORT = int(os.getenv("SERVER_PORT", "7000"))
 
 # Initialize MCP server
 app = Server("yunite-mcp-server")
@@ -710,78 +702,32 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
         ]
 
 
-# HTTP/SSE endpoints for MCP
-async def handle_sse(request):
-    """Handle SSE connections for MCP"""
-    from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
+async def main():
+    """Main entry point for stdio transport"""
+    import sys
     
-    async def event_generator():
-        # Create memory streams for communication
-        read_stream_send, read_stream_receive = anyio.create_memory_object_stream(0)
-        write_stream_send, write_stream_receive = anyio.create_memory_object_stream(0)
-        
-        async def run_server():
-            async with read_stream_send, write_stream_receive:
-                await app.run(
-                    read_stream_receive,
-                    write_stream_send,
-                    app.create_initialization_options()
-                )
-        
-        # Start server in background
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(run_server)
-            
-            # Send events
-            async with write_stream_receive:
-                async for message in write_stream_receive:
-                    yield {
-                        "event": "message",
-                        "data": message
-                    }
-    
-    return EventSourceResponse(event_generator())
-
-
-async def handle_messages(request):
-    """Handle HTTP POST for messages"""
-    return Response(content='{"status": "ok"}', media_type="application/json")
-
-
-async def handle_health(request):
-    """Health check endpoint"""
-    return Response(content='{"status": "healthy"}', media_type="application/json")
-
-
-# Create Starlette app
-starlette_app = Starlette(
-    routes=[
-        Route("/sse", endpoint=handle_sse),
-        Route("/messages", endpoint=handle_messages, methods=["POST"]),
-        Route("/health", endpoint=handle_health),
-    ]
-)
-
-
-def main():
-    """Start the HTTP server on port 7000"""
-    print(f"🚀 Starting Yunite MCP Server on http://localhost:{SERVER_PORT}")
-    print(f"   SSE endpoint: http://localhost:{SERVER_PORT}/sse")
-    print(f"   API Base URL: {API_BASE_URL}")
-    print(f"   Admin User: {ADMIN_USERNAME}")
+    # Log startup to stderr (stdout is reserved for MCP protocol)
+    print(f"🚀 Starting Yunite MCP Server (stdio transport)", file=sys.stderr)
+    print(f"   API Base URL: {API_BASE_URL}", file=sys.stderr)
+    print(f"   Admin User: {ADMIN_USERNAME}", file=sys.stderr)
     
     # Test token generation on startup
-    import asyncio
     try:
-        token = asyncio.run(get_api_token())
-        print(f"   ✅ Token generated successfully")
+        token = await get_api_token()
+        print(f"   ✅ Token generated successfully", file=sys.stderr)
     except Exception as e:
-        print(f"   ❌ Failed to generate token: {e}")
-        print(f"   Please check your ADMIN_USERNAME and ADMIN_PASSWORD in .env")
-        return
+        print(f"   ❌ Failed to generate token: {e}", file=sys.stderr)
+        print(f"   Please check your ADMIN_USERNAME and ADMIN_PASSWORD in .env", file=sys.stderr)
+        sys.exit(1)
     
-    uvicorn.run(starlette_app, host="0.0.0.0", port=SERVER_PORT)
+    # Run the server with stdio transport
+    async with stdio_server() as (read_stream, write_stream):
+        await app.run(
+            read_stream,
+            write_stream,
+            app.create_initialization_options()
+        )
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

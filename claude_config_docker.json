@@ -1,8 +1,14 @@
 {
   "mcpServers": {
-    "yunite-docker": {
-      "url": "http://localhost:7000/sse",
-      "transport": "sse"
+    "yunite": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "yunite-mcp-server",
+        "python3",
+        "server.py"
+      ]
     }
   }
 }

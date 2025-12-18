@@ -4,13 +4,12 @@ services:
   yunite-mcp-server:
     build: .
     container_name: yunite-mcp-server
-    ports:
-      - "7000:7000"
     environment:
       - API_BASE_URL=${API_BASE_URL:-http://host.docker.internal:8000}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - SERVER_PORT=7000
+    stdin_open: true
+    tty: true
     restart: unless-stopped
     networks:
       - yunite-network
