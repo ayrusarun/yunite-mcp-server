@@ -54,7 +54,7 @@ def get_comprehensive_tools():
                     "offset": {"type": "integer", "description": "Offset for pagination", "default": 0},
                     "post_type": {"type": "string", "description": "Filter by type: ANNOUNCEMENT, INFO, IMPORTANT, EVENTS, GENERAL"},
                     "group_id": {"type": "integer", "description": "Filter by group ID"},
-                    "include_engagement": {"type": "boolean", "description": "Include like/comment counts", "default": true}
+                    "include_engagement": {"type": "boolean", "description": "Include like/comment counts", "default": True}
                 }
             }
         ),
@@ -144,7 +144,7 @@ def get_comprehensive_tools():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "include_stats": {"type": "boolean", "description": "Include student/program counts", "default": false}
+                    "include_stats": {"type": "boolean", "description": "Include student/program counts", "default": False}
                 }
             }
         ),
@@ -176,7 +176,7 @@ def get_comprehensive_tools():
                 "type": "object",
                 "properties": {
                     "department_id": {"type": "integer", "description": "Filter by department"},
-                    "include_stats": {"type": "boolean", "description": "Include cohort/student counts", "default": false},
+                    "include_stats": {"type": "boolean", "description": "Include cohort/student counts", "default": False},
                     "is_active": {"type": "boolean", "description": "Filter by active status"}
                 }
             }
@@ -202,7 +202,7 @@ def get_comprehensive_tools():
                 "properties": {
                     "program_id": {"type": "integer", "description": "Filter by program"},
                     "admission_year": {"type": "integer", "description": "Filter by admission year"},
-                    "include_stats": {"type": "boolean", "description": "Include student counts", "default": false},
+                    "include_stats": {"type": "boolean", "description": "Include student counts", "default": False},
                     "is_active": {"type": "boolean", "description": "Filter by active status"}
                 }
             }
@@ -228,7 +228,7 @@ def get_comprehensive_tools():
                 "properties": {
                     "cohort_id": {"type": "integer", "description": "Filter by cohort"},
                     "program_id": {"type": "integer", "description": "Filter by program"},
-                    "include_stats": {"type": "boolean", "description": "Include student counts", "default": false}
+                    "include_stats": {"type": "boolean", "description": "Include student counts", "default": False}
                 }
             }
         ),
@@ -720,7 +720,7 @@ def get_comprehensive_tools():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "unread_only": {"type": "boolean", "description": "Only show unread alerts", "default": false},
+                    "unread_only": {"type": "boolean", "description": "Only show unread alerts", "default": False},
                     "limit": {"type": "integer", "description": "Number of alerts", "default": 50},
                     "offset": {"type": "integer", "description": "Offset for pagination", "default": 0}
                 }
