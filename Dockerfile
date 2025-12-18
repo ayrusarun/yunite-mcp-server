@@ -8,6 +8,8 @@ RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pyth
 
 # Copy application files
 COPY server.py .
+COPY tools_comprehensive.py .
+COPY tool_handlers.py .
 COPY .env .
 
 # Run the server with stdio transport
