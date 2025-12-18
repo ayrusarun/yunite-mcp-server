@@ -432,7 +432,8 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
         result = await handle_tool_call(name, arguments, make_api_request)
         
         # If not found in comprehensive handler, check write/admin tools
-        if result.get("error") and result.get("message", "").startswith("Unknown tool"):
+        # Check if result is a dict before using .get() method
+        if isinstance(result, dict) and result.get("error") and result.get("message", "").startswith("Unknown tool"):
             # Write/Admin tool handlers below
             if name == "create_post":
                 data = {
