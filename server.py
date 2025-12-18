@@ -543,155 +543,108 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
         # Try comprehensive handler first
         result = await handle_tool_call(name, arguments, make_api_request)
         
-        # If not found in comprehensive handler, check legacy tools
+        # If not found in comprehensive handler, check write/admin tools
         if result.get("error") and result.get("message", "").startswith("Unknown tool"):
-            # Legacy tool handlers below
-            if name == "list_departments_simple":
-                params = {}
-                if arguments.get("include_stats"):
-                    params["include_stats"] = True
-                result = await make_api_request("GET", "/departments/", params=params)
+            # Write/Admin tool handlers below
+            if name == "create_post":
+                data = {
+                    "content": arguments["content"],
+                    "title": arguments.get("title")
+                }
+                result = await make_api_request("POST", "/posts/", data=data)
             
-        elif name == "list_programs":
-            params = {}
-            if arguments.get("department_id"):
-                params["department_id"] = arguments["department_id"]
-            if arguments.get("include_stats"):
-                params["include_stats"] = True
-            result = await make_api_request("GET", "/academic/programs", params=params)
+            elif name == "create_department":
+                data = {
+                    "name": arguments["name"],
+                    "code": arguments["code"],
+                    "description": arguments.get("description"),
+                    "is_active": arguments.get("is_active", True)
+                }
+                result = await make_api_request("POST", "/departments/", data=data)
             
-        elif name == "list_cohorts":
-            params = {}
-            if arguments.get("program_id"):
-                params["program_id"] = arguments["program_id"]
-            if arguments.get("admission_year"):
-                params["admission_year"] = arguments["admission_year"]
-            if arguments.get("include_stats"):
-                params["include_stats"] = True
-            result = await make_api_request("GET", "/academic/cohorts", params=params)
+            elif name == "create_program":
+                data = {
+                    "college_id": arguments["college_id"],
+                    "department_id": arguments["department_id"],
+                    "code": arguments["code"],
+                    "name": arguments["name"],
+                    "short_name": arguments.get("short_name"),
+                    "duration_years": arguments["duration_years"],
+                    "description": arguments.get("description"),
+                    "is_active": arguments.get("is_active", True)
+                }
+                result = await make_api_request("POST", "/academic/programs", data=data)
             
-        elif name == "list_sections":
-            params = {}
-            if arguments.get("cohort_id"):
-                params["cohort_id"] = arguments["cohort_id"]
-            if arguments.get("program_id"):
-                params["program_id"] = arguments["program_id"]
-            if arguments.get("include_stats"):
-                params["include_stats"] = True
-            result = await make_api_request("GET", "/academic/classes", params=params)
+            elif name == "create_cohort":
+                data = {
+                    "college_id": arguments["college_id"],
+                    "program_id": arguments["program_id"],
+                    "admission_year": arguments["admission_year"],
+                    "code": arguments["code"],
+                    "name": arguments["name"],
+                    "expected_graduation_year": arguments.get("expected_graduation_year"),
+                    "current_semester": arguments.get("current_semester", 1),
+                    "is_active": arguments.get("is_active", True)
+                }
+                result = await make_api_request("POST", "/academic/cohorts", data=data)
             
-        elif name == "get_user_profile":
-            result = await make_api_request("GET", "/users/me")
+            elif name == "create_section":
+                data = {
+                    "college_id": arguments["college_id"],
+                    "cohort_id": arguments["cohort_id"],
+                    "program_id": arguments["program_id"],
+                    "section_code": arguments["section_code"],
+                    "section_name": arguments.get("section_name"),
+                    "capacity": arguments.get("capacity"),
+                    "is_active": arguments.get("is_active", True)
+                }
+                result = await make_api_request("POST", "/academic/classes", data=data)
             
-        elif name == "list_posts":
-            params = {
-                "limit": arguments.get("limit", 20),
-                "offset": arguments.get("offset", 0)
-            }
-            result = await make_api_request("GET", "/posts/", params=params)
+            elif name == "create_student":
+                data = {
+                    "username": arguments["username"],
+                    "email": arguments["email"],
+                    "full_name": arguments["full_name"],
+                    "password": arguments["password"],
+                    "college_id": arguments["college_id"],
+                    "department_id": arguments["department_id"],
+                    "program_id": arguments["program_id"],
+                    "cohort_id": arguments["cohort_id"],
+                    "class_id": arguments["class_id"],
+                    "admission_year": arguments["admission_year"],
+                    "role": "student"
+                }
+                result = await make_api_request("POST", "/admin/users", data=data)
             
-        elif name == "create_post":
-            data = {
-                "content": arguments["content"],
-                "title": arguments.get("title")
-            }
-            result = await make_api_request("POST", "/posts/", data=data)
+            elif name == "create_staff":
+                data = {
+                    "username": arguments["username"],
+                    "email": arguments["email"],
+                    "full_name": arguments["full_name"],
+                    "password": arguments["password"],
+                    "college_id": arguments["college_id"],
+                    "role": arguments.get("role", "staff")
+                }
+                if arguments.get("department_id"):
+                    data["department_id"] = arguments["department_id"]
+                result = await make_api_request("POST", "/admin/users", data=data)
             
-        elif name == "get_user_groups":
-            result = await make_api_request("GET", "/user-groups/my-groups")
-        
-        # Academic Admin Tools
-        elif name == "create_department":
-            data = {
-                "name": arguments["name"],
-                "code": arguments["code"],
-                "description": arguments.get("description"),
-                "is_active": arguments.get("is_active", True)
-            }
-            result = await make_api_request("POST", "/departments/", data=data)
+            elif name == "update_user_profile":
+                user_id = arguments["user_id"]
+                data = {}
+                if arguments.get("full_name"):
+                    data["full_name"] = arguments["full_name"]
+                if arguments.get("email"):
+                    data["email"] = arguments["email"]
+                if arguments.get("bio"):
+                    data["bio"] = arguments["bio"]
+                if arguments.get("profile_picture"):
+                    data["profile_picture"] = arguments["profile_picture"]
+                result = await make_api_request("PUT", f"/users/{user_id}", data=data)
             
-        elif name == "create_program":
-            data = {
-                "college_id": arguments["college_id"],
-                "department_id": arguments["department_id"],
-                "code": arguments["code"],
-                "name": arguments["name"],
-                "short_name": arguments.get("short_name"),
-                "duration_years": arguments["duration_years"],
-                "description": arguments.get("description"),
-                "is_active": arguments.get("is_active", True)
-            }
-            result = await make_api_request("POST", "/academic/programs", data=data)
-            
-        elif name == "create_cohort":
-            data = {
-                "college_id": arguments["college_id"],
-                "program_id": arguments["program_id"],
-                "admission_year": arguments["admission_year"],
-                "code": arguments["code"],
-                "name": arguments["name"],
-                "expected_graduation_year": arguments.get("expected_graduation_year"),
-                "current_semester": arguments.get("current_semester", 1),
-                "is_active": arguments.get("is_active", True)
-            }
-            result = await make_api_request("POST", "/academic/cohorts", data=data)
-            
-        elif name == "create_section":
-            data = {
-                "college_id": arguments["college_id"],
-                "cohort_id": arguments["cohort_id"],
-                "program_id": arguments["program_id"],
-                "section_code": arguments["section_code"],
-                "section_name": arguments.get("section_name"),
-                "capacity": arguments.get("capacity"),
-                "is_active": arguments.get("is_active", True)
-            }
-            result = await make_api_request("POST", "/academic/classes", data=data)
-            
-        elif name == "create_student":
-            data = {
-                "username": arguments["username"],
-                "email": arguments["email"],
-                "full_name": arguments["full_name"],
-                "password": arguments["password"],
-                "college_id": arguments["college_id"],
-                "department_id": arguments["department_id"],
-                "program_id": arguments["program_id"],
-                "cohort_id": arguments["cohort_id"],
-                "class_id": arguments["class_id"],
-                "admission_year": arguments["admission_year"],
-                "role": "student"
-            }
-            result = await make_api_request("POST", "/admin/users", data=data)
-            
-        elif name == "create_staff":
-            data = {
-                "username": arguments["username"],
-                "email": arguments["email"],
-                "full_name": arguments["full_name"],
-                "password": arguments["password"],
-                "college_id": arguments["college_id"],
-                "role": arguments.get("role", "staff")
-            }
-            if arguments.get("department_id"):
-                data["department_id"] = arguments["department_id"]
-            result = await make_api_request("POST", "/admin/users", data=data)
-            
-        elif name == "update_user_profile":
-            user_id = arguments["user_id"]
-            data = {}
-            if arguments.get("full_name"):
-                data["full_name"] = arguments["full_name"]
-            if arguments.get("email"):
-                data["email"] = arguments["email"]
-            if arguments.get("bio"):
-                data["bio"] = arguments["bio"]
-            if arguments.get("profile_picture"):
-                data["profile_picture"] = arguments["profile_picture"]
-            result = await make_api_request("PUT", f"/users/{user_id}", data=data)
-            
-        else:
-            result = {"error": True, "message": f"Unknown tool: {name}"}
+            else:
+                # Tool not found even in write tools
+                pass  # result already set from comprehensive handler
         
         return [
             TextContent(
